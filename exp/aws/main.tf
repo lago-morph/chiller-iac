@@ -1,0 +1,15 @@
+provider "aws" {
+  region = var.region
+}
+
+data "aws_availability_zones" "available" {}
+
+locals {
+  azs = slice(data.aws_availability_zones.available.names, 0, 3)
+
+  tags = {
+    TFName     = var.name
+    GithubRepo = "chiller-iac"
+    GithubOrg  = "lago-morph"
+  }
+}
