@@ -41,7 +41,8 @@ resource "helm_release" "alb-controller" {
   chart      = "aws-load-balancer-controller"
   namespace  = "kube-system"
   depends_on = [
-    kubernetes_service_account.service-account
+    kubernetes_service_account.service-account,
+    helm_release.kube-prometheus-stack
   ]
 
   set {
