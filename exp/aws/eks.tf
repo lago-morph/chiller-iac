@@ -27,10 +27,20 @@ module "eks" {
       min_size     = 3
       max_size     = 5
       desired_size = 3
-      # desired size only used when it is set (creation or if it is changed)
+      # desired size only used on creation
     }
   }
 
+  node_security_group_additional_rules = {
+    ingress_self_http = {
+      description = "Node to node http"
+      protocol    = "tcp"
+      from_port   = 80
+      to_port     = 80
+      type        = "ingress"
+      self        = true
+    }
+  }
   tags = local.tags
 }
 
