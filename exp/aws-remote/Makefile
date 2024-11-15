@@ -1,12 +1,17 @@
 define DOCS
-Convenience helpers for Watch and Chill IaC
+Set up for remote backend
 
 backend-init    Create S3 bucket, DynamoDB table, and output to backend.tf
-kubectl         Update kubectl with auth from Terraform run
 
 endef
 
 MAKEFLAGS += --jobs
+
+S3B := chiller-state-bucket-$(shell openssl rand -hex 10)
+DDBNAME := terraformstatelock
+DDBKEY := LockID
+REGION := $(shell aws configure get region)
+TFBACKENDFILE := backend.tf
 
 .ONESHELL:
 
@@ -15,10 +20,6 @@ export DOCS
 show-usage: 
 	@echo "$$DOCS"
 
-kubectl: AWS_REGION = $(shell terraform output -raw region)
-kubectl: AWS_EKS_NAME = $(shell terraform output -raw eks_cluster_name)
-kubectl:
-	aws eks update-kubeconfig --region $(AWS_REGION) --name $(AWS_EKS_NAME)
 
 create-resources:
 	aws s3 mb s3://$(S3B)
@@ -26,8 +27,7 @@ create-resources:
 		  --table-name $(DDBNAME) \
 		  --key-schema AttributeName=$(DDBKEY),KeyType=HASH \
 		  --attribute-definitions AttributeName=$(DDBKEY),AttributeType=S \
-		  --billing-mode PAY_PER_REQUEST \
-		  --no-cli-pager
+		  --billing-mode PAY_PER_REQUEST
 
 output-file:
 	cat <<EOF > $(TFBACKENDFILE)
@@ -41,12 +41,5 @@ output-file:
 	}
 	EOF
 
-backend-init: S3B := chiller-state-bucket-$(shell openssl rand -hex 10)
-backend-init: DDBNAME = terraformstatelock
-backend-init: DDBKEY = LockID
-backend-init: REGION = $(shell aws configure get region)
-backend-init: TFBACKENDFILE := backend.tf
-
 backend-init: create-resources output-file
-	terraform fmt
 
