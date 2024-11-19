@@ -11,6 +11,7 @@ module "eks" {
     eks-pod-identity-agent = {}
     kube-proxy             = {}
     vpc-cni                = {}
+    aws-efs-csi-driver     = { most_recent = true }
   }
 
   vpc_id     = module.vpc.vpc_id
@@ -24,10 +25,11 @@ module "eks" {
       # with k8s v1.30 and later AL2023 is AMI for EKS managed node groups
       instance_types = ["t3.medium"]
 
-      min_size     = 3
-      max_size     = 5
-      desired_size = 3
+      min_size     = var.numAZs
+      max_size     = var.numAZs
+      desired_size = var.numAZs
       # desired size only used on creation
+      iam_role_additional_policies = { AmazonEFSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy" }
     }
   }
 
@@ -40,6 +42,7 @@ module "eks" {
       type        = "ingress"
       self        = true
     }
+
   }
   tags = local.tags
 }

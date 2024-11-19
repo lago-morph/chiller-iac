@@ -1,3 +1,9 @@
+variable "numAZs" {
+  description = "The number of AZs to use"
+  type        = number
+  default     = 3
+}
+
 variable "region" {
   description = "AWS region to use"
   type        = string
