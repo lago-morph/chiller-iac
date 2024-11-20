@@ -62,6 +62,9 @@ resource "aws_security_group_rule" "efs_egress" {
 resource "kubernetes_storage_class" "efs-sc" {
   metadata {
     name = "efs-sc"
+    annotations = {
+      "storageclass.kubernetes.io/is-default-class" = "true"
+    }
   }
   storage_provisioner = "efs.csi.aws.com"
   parameters = {
