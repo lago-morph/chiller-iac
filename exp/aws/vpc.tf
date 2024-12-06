@@ -19,7 +19,7 @@ module "vpc" {
   private_subnets = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 4, k)]
   public_subnets  = [for k, v in local.azs : cidrsubnet(var.vpc_cidr, 4, k + 4)]
 
-  /*
+  # These tags are required for the aws-load-balancer-controller to function
   public_subnet_tags = {
     "kubernetes.io/role/elb" = 1
   }
@@ -27,7 +27,6 @@ module "vpc" {
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
   }
-*/
 
   tags = local.tags
 }
